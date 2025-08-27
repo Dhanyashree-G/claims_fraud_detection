@@ -1,0 +1,103 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+/* Tab container */
+.tab-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* Tab buttons */
+.tab-button {
+  flex: 1;
+  padding: 12px;
+  text-align: center;
+  background-color: #f1f1f1;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-weight: bold;
+}
+.tab-button.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+/* Tab content sections */
+.tab-content {
+  display: none;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  background-color: #fff;
+}
+</style>
+<main class="main-content">
+    <h1>Welcome to the Fraud Detection System</h1>
+    <p>
+        Our platform helps healthcare organizations proactively identify, analyze, and prevent fraudulent claims.
+        With powerful analytics, machine learning predictions, and intuitive visualizations, you can make data-driven decisions to safeguard your operations.
+    </p>
+
+    <!-- System Overview -->
+    <div class="card">
+        <h2>How It Works</h2>
+        <ol>
+            <li><strong>Upload Data:</strong> Import individual or bulk claims data securely.</li>
+            <li><strong>Analyze:</strong> Run AI-powered fraud detection algorithms.</li>
+            <li><strong>Understand Predictions:</strong> View SHAP explanations to see why a claim is flagged.</li>
+            <li><strong>Generate Reports:</strong> Export detailed fraud analysis reports for auditing.</li>
+        </ol>
+    </div>
+
+    <!-- Features Section -->
+    <div class="card">
+        <h2>Key Features</h2>
+        <ul>
+            <li><strong>Single Claim Analysis:</strong> Instantly check the legitimacy of a single claim.</li>
+            <li><strong>Provider-Level Insights:</strong> Analyze trends and anomalies across multiple claims.</li>
+            <li><strong>Explainable AI:</strong> Understand model decisions using SHAP-based visualizations.</li>
+            <li><strong>Interactive Dashboard:</strong> Real-time statistics and charts for fraud monitoring.</li>
+            <li><strong>Report Generation:</strong> Download evidence-based reports in just a few clicks.</li>
+        </ul>
+    </div>
+
+    <!-- Benefits Section -->
+    <div class="card">
+        <h2>Why Choose This System?</h2>
+        <ul>
+            <li>Reduce financial losses by early fraud detection.</li>
+            <li>Gain transparency into model predictions.</li>
+            <li>Make data-driven decisions with ease.</li>
+            <li>Secure and compliant with healthcare data standards.</li>
+        </ul>
+    </div>
+
+    <!-- Quick Navigation -->
+    <div class="card">
+        <h2>Get Started</h2>
+        <p>Start exploring the features and insights:</p>
+        <div class="grid">
+            <a href="{{ url_for('dashboard') }}" class="button">Go to Dashboard</a>
+            <a href="{{ url_for('single_claim') }}" class="button">Analyze a Claim</a>
+            <a href="{{ url_for('predict_provider') }}" class="button">Provider Analysis</a>
+
+        </div>
+    </div>
+
+    <!-- Support Section -->
+    <div class="card">
+        <h2>Need Help?</h2>
+        <p>
+            Check out our documentation or contact support for assistance.
+        </p>
+        <ul>
+            <li>Email: <a href="mailto:support@fraudportal.com">support@fraudportal.com</a></li>
+            <li>FAQs: Coming soon!</li>
+        </ul>
+    </div>
+</main>
+{% endblock %}

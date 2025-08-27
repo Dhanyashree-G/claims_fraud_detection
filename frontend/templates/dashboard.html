@@ -1,0 +1,164 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Fraud Detection Dashboard</h2>
+
+<style>
+/* Tab container */
+.tab-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* Tab buttons */
+.tab-button {
+  flex: 1;
+  padding: 12px;
+  text-align: center;
+  background-color: #f1f1f1;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-weight: bold;
+}
+.tab-button.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+/* Tab content sections */
+.tab-content {
+  display: none;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  background-color: #fff;
+}
+</style>
+
+<div class="tab-container">
+  <div class="tab-button active" data-tab="claim">Claim-Level</div>
+  <div class="tab-button" data-tab="provider">Provider-Level</div>
+  <div class="tab-button" data-tab="viz">Visualization</div>
+
+</div>
+
+<!-- Tab Contents -->
+<div id="claim" class="tab-content" style="display:block;">
+  <h3>📝 Single Claim Analysis</h3>
+  <form method="POST" action="{{ url_for('single_claim') }}" class="card">
+    <div class="grid" style="grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:10px;">
+      <input type="number" name="claim_duration" placeholder="Claim Duration" required>
+      <input type="number" name="los" placeholder="Length of Stay (LOS)" required>
+      <input type="number" step="0.01" name="claim_amount" placeholder="Claim Amount ($)" required>
+      <input type="number" step="0.01" name="deductible_paid" placeholder="Deductible Paid" required>
+      <input type="number" step="0.01" name="pay_ratio" placeholder="Pay Ratio" required>
+      <input type="number" name="num_diags" placeholder="Number of Diagnoses" required>
+      <input type="number" name="num_procs" placeholder="Number of Procedures" required>
+      <input type="number" name="patient_age" placeholder="Patient Age" required>
+
+      <select name="death_during_claim" class="form-field">
+        <option value="0">No Death</option>
+        <option value="1">Death Occurred</option>
+      </select>
+      <select name="is_inpatient" class="form-field">
+        <option value="0">Not Inpatient</option>
+        <option value="1">Inpatient</option>
+      </select>
+      <select name="is_outpatient" class="form-field">
+        <option value="0">Not Outpatient</option>
+        <option value="1">Outpatient</option>
+      </select>
+      <select name="gender" class="form-field">
+        <option value="0">Female</option>
+        <option value="1">Male</option>
+      </select>
+
+      <input type="number" name="state" placeholder="State Code" required>
+      <input type="number" name="chronic_count" placeholder="Chronic Conditions Count" required>
+      <select name="renal_disease" class="form-field">
+        <option value="0">No Renal Disease</option>
+        <option value="1">Renal Disease</option>
+      </select>
+      <input type="number" name="num_physicians" placeholder="Number of Physicians" required>
+      <select name="attending_operating_same" class="form-field">
+        <option value="0">Different Physicians</option>
+        <option value="1">Same Physician</option>
+      </select>
+      <input type="number" name="claim_month" placeholder="Claim Month" required>
+      <input type="number" name="claim_year" placeholder="Claim Year" required>
+      <select name="weekend_admission" class="form-field">
+        <option value="0">Weekday Admission</option>
+        <option value="1">Weekend Admission</option>
+      </select>
+    </div>
+    <button type="submit" style="margin-top:12px;">Analyze for Fraud 🔍</button>
+  </form>
+</div>
+
+<div id="provider" class="tab-content">
+  <h3>📁 Provider CSV Upload</h3>
+  <form id="predict-form" method="post" action="{{ url_for('predict_provider') }}" enctype="multipart/form-data">
+    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px;">
+      <div>
+        <label>Inpatient CSV</label>
+        <input type="file" name="inpatient" accept=".csv" required>
+      </div>
+      <div>
+        <label>Outpatient CSV</label>
+        <input type="file" name="outpatient" accept=".csv" required>
+      </div>
+      <div>
+        <label>Beneficiary CSV</label>
+        <input type="file" name="beneficiary" accept=".csv" required>
+      </div>
+    </div>
+    <button type="submit" style="margin-top:12px;">Build Features & Score Providers</button>
+  </form>
+</div>
+
+<div id="viz" class="tab-content">
+  <h3>📊 Power BI Dashboard</h3>
+  <iframe width="100%" height="400" src="https://app.powerbi.com/reportEmbed?reportId=fe303979-0775-4a51-b103-a3d77750d691&autoAuth=true&ctid=b92090fd-64ee-40f0-87f1-408b8f8a5168" title="Power BI"></iframe>
+</div>
+
+
+<script>
+// Tab switching
+const tabs = document.querySelectorAll(".tab-button");
+tabs.forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab-button").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    const tabName = tab.dataset.tab;
+    document.querySelectorAll(".tab-content").forEach(c => c.style.display="none");
+    document.getElementById(tabName).style.display="block";
+  });
+});
+
+// Chatbot JS
+async function sendMessage() {
+    const msg = document.getElementById("user-msg").value;
+    if (!msg) return;
+    const chatWindow = document.getElementById("chat-window");
+    chatWindow.innerHTML += `<div><b>You:</b> ${msg}</div>`;
+
+    const res = await fetch("/api/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({message: msg})
+    });
+    const data = await res.json();
+    chatWindow.innerHTML += `<div><b>Bot:</b> ${data.reply}</div>`;
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+    document.getElementById("user-msg").value = "";
+}
+
+// Show loading overlay for provider upload
+document.getElementById("predict-form")?.addEventListener("submit", () => {
+    const overlay = document.getElementById("loading-overlay");
+    if (overlay) overlay.style.display = "block";
+});
+</script>
+{% endblock %}

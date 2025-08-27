@@ -1,0 +1,86 @@
+{% extends "layout.html" %}
+{% block content %}
+{% if mode == "claim" %}
+<div class="card">
+  <h2>Claim Prediction</h2>
+  <p><strong>Prediction:</strong>
+    {% if result.prediction==1 %}
+      <span style="color:#b91c1c; font-weight:700;">Fraud</span>
+    {% else %}
+      <span style="color:#065f46; font-weight:700;">Not Fraud</span>
+    {% endif %}
+  </p>
+  {% if result.score %}
+  <p><strong>Confidence:</strong> {{ '%.2f'|format(result.score) }}</p>
+  {% endif %}
+  {% if result.shap_image %}
+
+  {% endif %}
+  <details>
+    <summary>Features</summary>
+    <pre>{{ result.features | tojson(indent=2) }}</pre>
+  </details>
+
+  <!-- Claim-Level PDF Download Button -->
+  {% if report_file %}
+  <a class="button" href="{{ url_for('download_report', fname=report_file) }}"
+     style="margin-top:12px; display:inline-block;">
+     Download Claim Report (PDF)
+  </a>
+  {% endif %}
+</div>
+{% else %}
+<h2>Provider-Level Predictions</h2>
+
+<div class="card">
+  <h3>Global Feature Importance</h3>
+  <img src="{{ url_for('static', filename='images/custom_plot.png') }}"
+       alt="Custom Feature Plot" style="max-width: 100%; height: auto;">
+</div>
+
+<div class="card">
+  <h3>Preview (first 50 rows)</h3>
+  <table>
+    <thead>
+      {% if table_preview and table_preview[0] %}
+      <tr>
+        {% for k in table_preview[0].keys() %}
+        <th>{{ k }}</th>
+        {% endfor %}
+      </tr>
+      {% endif %}
+    </thead>
+    <tbody>
+      {% for row in table_preview %}
+      <tr>
+        {% for k,v in row.items() %}
+          {% if k == "FraudPrediction" %}
+            <td>
+              {% if v==1 %}
+                <span style="color:#b91c1c; font-weight:700;">Fraud</span>
+              {% else %}
+                <span style="color:#065f46; font-weight:700;">Not Fraud</span>
+              {% endif %}
+            </td>
+          {% else %}
+            <td>{{ v }}</td>
+          {% endif %}
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Provider-Level PDF Download Button -->
+{% if report_file %}
+<a class="button" href="{{ url_for('static', filename='reports/fraud_report.pdf') }}"
+   download="fraud_report.pdf"
+   style="margin-top:12px; display:inline-block;">
+    Download Full Report (PDF)
+</a>
+
+{% endif %}
+
+{% endif %}
+{% endblock %}
